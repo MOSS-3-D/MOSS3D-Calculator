@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MOSS3D Calculator</title>
+
+<!-- CUSTOM BROWSER TAB ICON -->
+<link rel="icon" type="image/svg+xml"
+href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%2300e5ff'/%3E%3Cstop offset='.5' stop-color='%23477aff'/%3E%3Cstop offset='1' stop-color='%23bd42ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M50 5L91 28V72L50 95L9 72V28Z' fill='%23080c23' stroke='url(%23g)' stroke-width='5'/%3E%3Cpath d='M9 28L50 51L91 28M50 51V95' fill='none' stroke='url(%23g)' stroke-width='3.5'/%3E%3Cpath d='M27 65V38L50 58L73 38V65' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #050516;
+    color: white;
+}
+
+/* BACKGROUND */
+.background {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 20% 20%, #101a80, transparent 45%),
+        radial-gradient(circle at 80% 80%, #350b69, transparent 45%),
+        linear-gradient(135deg, #03030d, #08082c, #090019);
+}
+
+/* FLOATING LOGOS */
+.watermark {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    opacity: 0.13;
+    filter: drop-shadow(0 0 18px #315bff);
+    animation: floatLogo 12s ease-in-out infinite;
+}
+
+.watermark:nth-child(1) {
+    top: 8%;
+    left: 7%;
+}
+
+.watermark:nth-child(2) {
+    top: 65%;
+    left: 72%;
+    animation-delay: -4s;
+    width: 110px;
+}
+
+.watermark:nth-child(3) {
+    top: 35%;
+    left: 80%;
+    animation-delay: -8s;
+    width: 90px;
+}
+
+.watermark:nth-child(4) {
+    top: 78%;
+    left: 12%;
+    animation-delay: -6s;
+    width: 100px;
+}
+
+@keyframes floatLogo {
+    0%, 100% {
+        transform: translateY(0) rotate(-8deg) scale(1);
+        opacity: 0.09;
+    }
+
+    50% {
+        transform: translateY(-30px) rotate(8deg) scale(1.12);
+        opacity: 0.22;
+    }
+}
+
+/* PARTICLES */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #55aaff;
+    box-shadow: 0 0 12px 3px #276aff;
+    animation: rise 8s linear infinite;
+}
+
+@keyframes rise {
+    from {
+        transform: translateY(110vh);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-10vh);
+        opacity: 0;
+    }
+}
+
+/* CALCULATOR */
+.calculator {
+    width: 350px;
+    max-width: 92vw;
+    padding: 25px;
+    border-radius: 25px;
+    background: rgba(8, 12, 35, 0.86);
+    border: 1px solid rgba(70, 130, 255, 0.6);
+
+    box-shadow:
+        0 0 25px rgba(0, 90, 255, 0.5),
+        0 0 65px rgba(120, 0, 255, 0.25),
+        inset 0 0 20px rgba(40, 80, 255, 0.08);
+
+    backdrop-filter: blur(15px);
+}
+
+/* BRAND */
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.brand-logo {
+    width: 57px;
+    height: 57px;
+    filter:
+        drop-shadow(0 0 7px #287aff)
+        drop-shadow(0 0 14px #8b35ff);
+    flex-shrink: 0;
+}
+
+.brand-text {
+    text-align: left;
+}
+
+.brand h1 {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 3px;
+
+    background: linear-gradient(
+        90deg,
+        #00d9ff,
+        #8d52ff,
+        #ff42d0
+    );
+
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+
+    filter: drop-shadow(0 0 10px #426aff);
+}
+
+.brand p {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #9dbaff;
+    margin-top: 4px;
+}
+
+/* DISPLAY */
+.display {
+    width: 100%;
+    min-height: 90px;
+    padding: 18px 12px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    background: rgba(0, 0, 15, 0.8);
+    border: 1px solid #263d91;
+    box-shadow: inset 0 0 15px rgba(30, 90, 255, 0.2);
+    text-align: right;
+    overflow: hidden;
+}
+
+.previous {
+    min-height: 20px;
+    color: #8499d8;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.current {
+    margin-top: 8px;
+    font-size: 30px;
+    color: white;
+    text-shadow: 0 0 12px #358aff;
+    overflow-wrap: anywhere;
+}
+
+/* BUTTONS */
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 11px;
+}
+
+button {
+    height: 62px;
+    border: 1px solid rgba(100, 130, 255, 0.3);
+    border-radius: 13px;
+    background: linear-gradient(145deg, #111d48, #10102c);
+    color: white;
+    font-size: 21px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    transform: translateY(-3px);
+    border-color: #55aaff;
+    box-shadow: 0 0 18px #245bff;
+}
+
+button:active {
+    transform: scale(0.94);
+}
+
+.operator {
+    color: #62dfff;
+    background: linear-gradient(145deg, #172d65, #171044);
+}
+
+.clear {
+    color: #ff6d9e;
+}
+
+.equal {
+    grid-row: span 2;
+    height: auto;
+    background: linear-gradient(145deg, #245dff, #812bff);
+    box-shadow: 0 0 18px rgba(75, 70, 255, 0.6);
+}
+
+.zero {
+    grid-column: span 2;
+}
+
+.footer {
+    text-align: center;
+    color: #718acb;
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND LOGOS -->
+<div class="background">
+
+    <svg class="watermark" viewBox="0 0 100 100">
+        <path d="M50 5 L91 28 L91 72 L50 95 L9 72 L9 28 Z"
+              fill="none" stroke="#438cff" stroke-width="4"/>
+        <path d="M9 28 L50 51 L91 28 M50 51 L50 95"
+              fill="none" stroke="#9a54ff" stroke-width="3"/>
+        <path d="M27 65 V38 L50 58 L73 38 V65"
+              fill="none" stroke="#50dfff" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <svg class="watermark" viewBox="0 0 100 100">
+        <path d="M50 5 L91 28 L91 72 L50 95 L9 72 L9 28 Z"
+              fill="none" stroke="#438cff" stroke-width="4"/>
+        <path d="M9 28 L50 51 L91 28 M50 51 L50 95"
+              fill="none" stroke="#9a54ff" stroke-width="3"/>
+        <path d="M27 65 V38 L50 58 L73 38 V65"
+              fill="none" stroke="#50dfff" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <svg class="watermark" viewBox="0 0 100 100">
+        <path d="M50 5 L91 28 L91 72 L50 95 L9 72 L9 28 Z"
+              fill="none" stroke="#438cff" stroke-width="4"/>
+        <path d="M9 28 L50 51 L91 28 M50 51 L50 95"
+              fill="none" stroke="#9a54ff" stroke-width="3"/>
+        <path d="M27 65 V38 L50 58 L73 38 V65"
+              fill="none" stroke="#50dfff" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <svg class="watermark" viewBox="0 0 100 100">
+        <path d="M50 5 L91 28 L91 72 L50 95 L9 72 L9 28 Z"
+              fill="none" stroke="#438cff" stroke-width="4"/>
+        <path d="M9 28 L50 51 L91 28 M50 51 L50 95"
+              fill="none" stroke="#9a54ff" stroke-width="3"/>
+        <path d="M27 65 V38 L50 58 L73 38 V65"
+              fill="none" stroke="#50dfff" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+</div>
+
+<!-- PARTICLES -->
+<script>
+for (let i = 0; i < 35; i++) {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.animationDelay = Math.random() * 8 + "s";
+    particle.style.animationDuration =
+        (5 + Math.random() * 8) + "s";
+
+    document.body.appendChild(particle);
+}
+</script>
+
+<!-- CALCULATOR -->
+<div class="calculator">
+
+    <div class="brand">
+
+        <!-- MAIN MOSS3D LOGO -->
+        <svg class="brand-logo" viewBox="0 0 100 100">
+
+            <defs>
+                <linearGradient id="logoGradient"
+                    x1="0" y1="0" x2="1" y2="1">
+
+                    <stop offset="0%" stop-color="#00e5ff"/>
+                    <stop offset="50%" stop-color="#477aff"/>
+                    <stop offset="100%" stop-color="#bd42ff"/>
+
+                </linearGradient>
+            </defs>
+
+            <path d="M50 5 L91 28 L91 72 L50 95 L9 72 L9 28 Z"
+                  fill="rgba(30,70,180,0.15)"
+                  stroke="url(#logoGradient)"
+                  stroke-width="5"
+                  stroke-linejoin="round"/>
+
+            <path d="M9 28 L50 51 L91 28 M50 51 L50 95"
+                  fill="none"
+                  stroke="url(#logoGradient)"
+                  stroke-width="3.5"
+                  stroke-linejoin="round"/>
+
+            <path d="M27 65 V38 L50 58 L73 38 V65"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+
+        </svg>
+
+        <div class="brand-text">
+            <h1>MOSS3D</h1>
+            <p>NEON CALCULATOR</p>
+        </div>
+
+    </div>
+
+    <div class="display">
+        <div class="previous" id="previous"></div>
+        <div class="current" id="current">0</div>
+    </div>
+
+    <div class="buttons">
+
+        <button class="clear" onclick="clearAll()">AC</button>
+        <button class="clear" onclick="deleteLast()">DEL</button>
+        <button class="operator" onclick="chooseOperation('/')">÷</button>
+        <button class="operator" onclick="chooseOperation('*')">×</button>
+
+        <button onclick="appendNumber('7')">7</button>
+        <button onclick="appendNumber('8')">8</button>
+        <button onclick="appendNumber('9')">9</button>
+        <button class="operator" onclick="chooseOperation('-')">−</button>
+
+        <button onclick="appendNumber('4')">4</button>
+        <button onclick="appendNumber('5')">5</button>
+        <button onclick="appendNumber('6')">6</button>
+        <button class="operator" onclick="chooseOperation('+')">+</button>
+
+        <button onclick="appendNumber('1')">1</button>
+        <button onclick="appendNumber('2')">2</button>
+        <button onclick="appendNumber('3')">3</button>
+        <button class="equal" onclick="calculate()">=</button>
+
+        <button class="zero" onclick="appendNumber('0')">0</button>
+        <button onclick="appendNumber('.')">.</button>
+
+    </div>
+
+    <div class="footer">POWERED BY MOSS3D</div>
+
+</div>
+
+<script>
+const currentDisplay = document.getElementById("current");
+const previousDisplay = document.getElementById("previous");
+
+let current = "0";
+let previous = "";
+let operation = null;
+let reset = false;
+
+function updateDisplay() {
+    currentDisplay.innerText = current;
+
+    previousDisplay.innerText =
+        previous && operation
+        ? previous + " " + operationSymbol(operation)
+        : "";
+}
+
+function operationSymbol(op) {
+    return {
+        "+": "+",
+        "-": "−",
+        "*": "×",
+        "/": "÷"
+    }[op];
+}
+
+function appendNumber(number) {
+    if (current === "Error") clearAll();
+
+    if (reset) {
+        current = number === "." ? "0." : number;
+        reset = false;
+        updateDisplay();
+        return;
+    }
+
+    if (number === "." && current.includes(".")) return;
+
+    if (current === "0" && number !== ".") {
+        current = number;
+    } else {
+        current += number;
+    }
+
+    updateDisplay();
+}
+
+function chooseOperation(op) {
+    if (current === "Error") return;
+
+    if (operation && !reset) {
+        calculate();
+    }
+
+    previous = current;
+    operation = op;
+    reset = true;
+    updateDisplay();
+}
+
+function calculate() {
+    if (!operation || reset || !previous) return;
+
+    const a = parseFloat(previous);
+    const b = parseFloat(current);
+    let result;
+
+    switch (operation) {
+        case "+":
+            result = a + b;
+            break;
+
+        case "-":
+            result = a - b;
+            break;
+
+        case "*":
+            result = a * b;
+            break;
+
+        case "/":
+            if (b === 0) {
+                current = "Error";
+                previous = "";
+                operation = null;
+                reset = true;
+                updateDisplay();
+                return;
+            }
+
+            result = a / b;
+            break;
+    }
+
+    current = String(Number(result.toPrecision(12)));
+    previous = "";
+    operation = null;
+    reset = true;
+    updateDisplay();
+}
+
+function clearAll() {
+    current = "0";
+    previous = "";
+    operation = null;
+    reset = false;
+    updateDisplay();
+}
+
+function deleteLast() {
+    if (current === "Error" || reset) {
+        current = "0";
+        reset = false;
+    } else {
+        current = current.length > 1
+            ? current.slice(0, -1)
+            : "0";
+    }
+
+    updateDisplay();
+}
+
+/* KEYBOARD SUPPORT */
+document.addEventListener("keydown", (e) => {
+    if (e.key >= "0" && e.key <= "9") {
+        appendNumber(e.key);
+    } else if (e.key === ".") {
+        appendNumber(".");
+    } else if (["+", "-", "*", "/"].includes(e.key)) {
+        chooseOperation(e.key);
+    } else if (e.key === "Enter" || e.key === "=") {
+        calculate();
+    } else if (e.key === "Backspace") {
+        deleteLast();
+    } else if (e.key === "Escape") {
+        clearAll();
+    }
+});
+</script>
+
+</body>
+</html>
